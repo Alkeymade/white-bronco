@@ -148,32 +148,52 @@ function init() {
     for (let i = 0; i < 45; i++) frames.push(new Frame((MAX_DEPTH / 45) * i));
     for (let i = 0; i < 800; i++) debris.push({ x: (Math.random()-0.5)*SHAFT_RADIUS*6, y: (Math.random()-0.5)*SHAFT_RADIUS*6, z: Math.random()*MAX_DEPTH, speed: Math.random()+0.5 });
 }
-
 function animate() {
-    ctx.fillStyle = 'black'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    let sound = 0; if (isAudioInitialized) { analyser.getByteFrequencyData(dataArray); sound = dataArray[5]; }
+    // 1. Clear the canvas every frame
+    ctx.fillStyle = 'black'; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    let sound = 0; 
+    // 2. SAFE AUDIO CHECK: Only get sound data if everything is ready
+    if (isAudioInitialized && analyser && dataArray) { 
+        analyser.getByteFrequencyData(dataArray); 
+        sound = dataArray[5] || 0; 
+    }
+    
+    // 3. CAMERA LOGIC
     currentCamX += ((mouse.x - canvas.width/2)*0.6 - currentCamX)*0.03;
     currentCamY += ((mouse.y - canvas.height/2)*0.6 - currentCamY)*0.03;
     
+    // 4. DRAW FRAMES
     frames.sort((a,b) => b.z - a.z);
-    frames.forEach((f, i) => {
+    frames.forEach((f) => {
         f.update(0.6 + sound*0.02, sound);
         let op = Math.pow(Math.max(0, 1 - (f.z / (MAX_DEPTH*0.45))), 3);
-        ctx.strokeStyle = `rgba(255,255,255,${op})`; ctx.lineWidth = Math.max(0.1, 2*op*f.thicknessMultiplier);
+        ctx.strokeStyle = `rgba(255,255,255,${op})`; 
+        ctx.lineWidth = Math.max(0.1, 2*op*f.thicknessMultiplier);
         ctx.beginPath();
-        f.points.forEach((p, j) => { if (j===0) ctx.moveTo(p.sx, p.sy); else ctx.lineTo(p.sx, p.sy); });
-        ctx.closePath(); ctx.stroke();
+        f.points.forEach((p, j) => { 
+            if (j===0) ctx.moveTo(p.sx, p.sy); 
+            else ctx.lineTo(p.sx, p.sy); 
+        });
+        ctx.closePath(); 
+        ctx.stroke();
     });
 
+    // 5. DRAW DEBRIS (THE STARS)
     debris.forEach(d => {
-        d.z -= (0.6 * d.speed); if (d.z < -100) d.z = MAX_DEPTH;
+        d.z -= (0.6 * d.speed); 
+        if (d.z < -100) d.z = MAX_DEPTH;
         let s = FOV / (FOV + d.z);
         let op = Math.pow(Math.max(0, 1 - (d.z / (MAX_DEPTH*0.7))), 2);
         ctx.fillStyle = `rgba(255,255,255,${op*0.8})`;
         ctx.fillRect((canvas.width/2)+(d.x-currentCamX)*s, (canvas.height/2)+(d.y-currentCamY)*s, 2*s, 2*s);
     });
+
+    // 6. KEEP THE LOOP GOING
     requestAnimationFrame(animate);
 }
+
 
 window.addEventListener('resize', init);
 init(); animate();
