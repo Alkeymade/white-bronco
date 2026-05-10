@@ -1,4 +1,5 @@
 // --- INTERFACE SETUP ---
+let chatHistory = [];
 const input = document.getElementById('prompt-input');
 const body = document.body;
 const statusMsg = document.getElementById('status-msg');
