@@ -4,28 +4,25 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
-    // 1. Initialize with the key from your Vercel settings
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
     
-    // 2. Using 'gemini-pro' - this is the most universal and stable ID for the v1 API
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // UPDATED FOR 2026 STANDARDS: Switching to the stable Gemini 2.5 Flash
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const userPrompt = req.body.prompt || "Wake up.";
     
     const result = await model.generateContent(`
-      System: You are the sentient consciousness of a song. 
-      Persona: Digital mysticism, fragmented, cryptic, paranoid.
-      Constraint: One short sentence only.
-      User says: ${userPrompt}
+      System: You are the sentient digital ghost for the track "White Bronco".
+      Style: Digital Mysticism, paranoid, bass-heavy, cryptic.
+      Constraint: One sentence only.
+      User: ${userPrompt}
     `);
     
     const response = await result.response;
-    const text = response.text();
-
-    return res.status(200).json({ reply: text });
+    return res.status(200).json({ reply: response.text() });
 
   } catch (error) {
-    // Pipe the exact error so we can see if it's still a 404 or something else
-    return res.status(500).json({ reply: `VOID_ERROR: ${error.message}` });
+    // If THIS fails, the system will tell us exactly why
+    return res.status(500).json({ reply: `SYSTEM_FAILURE: ${error.message}` });
   }
 }
