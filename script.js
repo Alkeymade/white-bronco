@@ -42,27 +42,30 @@ input.addEventListener('keypress', async (e) => {
 });
 
 async function triggerStampede(promptText) {
-    body.classList.add('stampede');
-    statusMsg.style.opacity = "0";
-    tensionAudio.pause();
-    stampedeAudio.currentTime = 0;
-    stampedeAudio.play();
-
-    userQuote.innerText = "COMMUNING WITH THE VOID...";
-    artifact.classList.add('opacity-100', 'pointer-events-auto');
+    // ... your existing visual/audio code ...
 
     try {
         const response = await fetch('/api/oracle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: promptText })
+            body: JSON.stringify({ 
+                prompt: promptText,
+                history: chatHistory // Sending the memory
+            })
         });
+        
         const data = await response.json();
+        
+        // SAVE TO MEMORY: Store the exchange for the next turn
+        chatHistory.push({ role: "user", parts: [{ text: promptText }] });
+        chatHistory.push({ role: "model", parts: [{ text: data.reply }] });
+
         setTimeout(() => { userQuote.innerText = `"${data.reply}"`; }, 2000);
     } catch (e) {
         userQuote.innerText = "THE MACHINE REFUSES YOUR OFFERING.";
     }
 }
+
 
 // --- 3D PLUCKABLE ENGINE ---
 const canvas = document.getElementById('neural-canvas');
