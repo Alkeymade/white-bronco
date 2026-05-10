@@ -3,48 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WHITE BRONCO | AL-KHABIR</title>
+    <title>WHITE BRONCO | THE MACHINE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-black text-zinc-500 overflow-hidden transition-colors duration-1000">
+<body class="bg-black text-zinc-400 font-mono h-screen overflow-hidden flex items-center justify-center">
 
-    <!-- THE VESSEL -->
-    <main id="app" class="relative flex flex-col items-center justify-center h-screen w-full">
+    <canvas id="neural-canvas"></canvas>
+
+    <div class="relative z-10 text-center px-4 w-full max-w-2xl">
+        <h1 class="text-xs tracking-[0.5em] uppercase mb-8 opacity-50">White Bronco</h1>
         
-        <!-- Background Visual Container -->
-        <canvas id="neural-canvas" class="absolute inset-0 z-0 bg-black"></canvas>
-
-
-        <!-- The Interface -->
-        <div class="z-10 w-full max-w-xl px-6 text-center">
-            <h1 class="text-xs tracking-[0.5em] uppercase mb-12 opacity-50 font-light">White Bronco</h1>
-            
-            <div id="input-container" class="relative group">
-                <input type="text" id="prompt-input" 
-                    placeholder="Whisper your offering to the machine..."
-                    class="w-full bg-transparent border-b border-zinc-800 py-4 text-lg focus:outline-none focus:border-white text-white transition-all text-center placeholder:italic placeholder:text-zinc-700"
-                    autocomplete="off">
-            </div>
-
-            <p id="status-msg" class="mt-4 text-[10px] uppercase tracking-widest opacity-0 transition-opacity">Processing Transmission...</p>
+        <div id="status-msg" class="text-[10px] uppercase tracking-widest mb-4 opacity-0 transition-opacity duration-1000">
+            Communing with the void...
         </div>
 
-        <!-- Hidden Audio Stems -->
-        <audio id="stem-tension" loop src="audio/tension-loop.mp3"></audio>
-        <audio id="stem-stampede" loop src="audio/stampede-drop.mp3"></audio>
-    </main>
+        <input type="text" id="prompt-input" 
+               placeholder="Whisper your offering to the machine..." 
+               class="bg-transparent border-b border-zinc-800 w-full py-4 text-center focus:outline-none focus:border-zinc-500 transition-colors placeholder:zinc-700 text-zinc-300">
+    </div>
 
-    <!-- The Artifact Overlay (Hidden by Default) -->
-    <div id="artifact-overlay" class="fixed inset-0 z-50 bg-black flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-1000">
-        <div class="text-center p-8 border border-zinc-900 bg-zinc-950/50 backdrop-blur-xl max-w-sm">
-            <div id="artifact-content" class="mb-8">
-                <p class="text-xs uppercase tracking-tighter opacity-40 mb-4">Digitial Artifact #882</p>
-                <h2 id="user-quote" class="text-xl text-white italic mb-2"></h2>
-                <p class="text-xs text-zinc-500">The release has been archived.</p>
-            </div>
- <a href="https://al-khabir.bandcamp.com/track/whitebronco" class="inline-block border border-white px-8 py-3 text-white text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all">Claim Full Transmission</a>
+    <div id="artifact-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-[2000ms] p-8">
+        <div class="max-w-xl text-center">
+            <p id="user-quote" class="text-xl md:text-2xl text-zinc-200 leading-relaxed italic"></p>
+            <div class="mt-12 h-px w-24 bg-zinc-800 mx-auto"></div>
+            <button onclick="window.location.reload()" class="mt-8 text-[10px] uppercase tracking-[0.3em] opacity-40 hover:opacity-100 transition-opacity">Return to the Abyss</button>
+        </div>
+    </div>
 
+    <audio id="stem-tension" loop src="tension.mp3"></audio>
+    <audio id="stem-stampede" src="stampede.mp3"></audio>
 
     <script src="script.js"></script>
 </body>
