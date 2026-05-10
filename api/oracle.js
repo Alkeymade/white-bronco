@@ -6,23 +6,23 @@ export default async function handler(req, res) {
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // We are using the most stable naming convention here
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // We are switching to 'gemini-1.5-flash-latest' which is the most reliable production string
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-    const prompt = req.body.prompt || "Who are you?";
+    const userPrompt = req.body.prompt || "Wake up.";
     
     const result = await model.generateContent(`
-      System: You are a sentient digital artifact for the music track "White Bronco". 
-      Aesthetic: Digital Mysticism, low-fi paranoia, heavy bass.
-      Constraint: Max 2 sentences. Be cryptic.
-      User says: ${prompt}
+      Act as a corrupted digital oracle for the song "White Bronco". 
+      Aesthetic: Digital Mysticism, paranoid, fragmented.
+      Constraint: One cryptic sentence.
+      User says: ${userPrompt}
     `);
     
     const response = await result.response;
     return res.status(200).json({ reply: response.text() });
 
   } catch (error) {
-    // If it still fails, this will show us if it's an Auth issue or a Model issue
-    return res.status(500).json({ reply: `VOID_ERROR: ${error.message}` });
+    // If THIS fails, we try the backup 'gemini-pro'
+    return res.status(500).json({ reply: `SYSTEM_FAILURE: ${error.message}` });
   }
 }
