@@ -1,23 +1,30 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY.trim() });
-    const history = req.body.history || [];
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
+    
+    // Using the 1.5-flash model which has the highest uptime/stability
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Using Gemini 3 Flash - the 2026 production standard
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash',
-      contents: [...history, { role: 'user', parts: [{ text: req.body.prompt }] }],
-      systemConfig: {
-        instructions: "You are the ghost of the song White Bronco. Be cryptic, fragmented, and mystical. 1 sentence max."
-      }
+    const history = req.body.history || [];
+    const prompt = req.body.prompt;
+
+    const chat = model.startChat({
+      history: history,
+      generationConfig: { maxOutputTokens: 50 },
     });
 
-    res.status(200).json({ reply: response.text });
+    const result = await chat.sendMessage(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    res.status(200).json({ reply: text });
   } catch (error) {
-    res.status(500).json({ reply: "SIGNAL_LOST." });
+    // This logs the real error to your Vercel Dashboard -> Logs
+    console.error("GHOST_ERROR:", error.message);
+    res.status(500).json({ reply: "SIGNAL_LOST. THE VOID IS BUSY." });
   }
 }
