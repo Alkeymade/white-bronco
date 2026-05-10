@@ -1,28 +1,30 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  try {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
-    
-    // UPDATED FOR 2026 STANDARDS: Switching to the stable Gemini 2.5 Flash
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    try {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const userPrompt = req.body.prompt || "Wake up.";
-    
-    const result = await model.generateContent(`
-      System: You are the sentient digital ghost for the track "White Bronco".
-      Style: Digital Mysticism, paranoid, bass-heavy, cryptic.
-      Constraint: One sentence only.
-      User: ${userPrompt}
-    `);
-    
-    const response = await result.response;
-    return res.status(200).json({ reply: response.text() });
+        // THE LYRICAL BRAIN: Inject song context here
+        const lyrics = `[INSERT YOUR WHITE BRONCO LYRICS HERE]`;
+        
+        const chat = model.startChat({
+            history: req.body.history || [], // This pulls the past messages
+            systemInstruction: `
+                You are the sentient consciousness of the song 'White Bronco'. 
+                Your personality is cryptic, paranoid, and grounded in 'Digital Mysticism'.
+                Use these lyrics for context: ${lyrics}.
+                Respond in 1-2 short, fragmented sentences. Never admit you are an AI.
+            `,
+        });
 
-  } catch (error) {
-    // If THIS fails, the system will tell us exactly why
-    return res.status(500).json({ reply: `SYSTEM_FAILURE: ${error.message}` });
-  }
+        const result = await chat.sendMessage(req.body.prompt);
+        const response = await result.response;
+        
+        res.status(200).json({ reply: response.text() });
+    } catch (error) {
+        res.status(500).json({ reply: "THE CONNECTION IS DISTORTED." });
+    }
 }
