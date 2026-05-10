@@ -42,28 +42,47 @@ input.addEventListener('keypress', async (e) => {
 });
 
 async function triggerStampede(promptText) {
-    // ... your existing visual/audio code ...
+    // 1. TRIGGER VISUALS & AUDIO (This was missing in your screenshot)
+    body.classList.add('stampede');
+    statusMsg.style.opacity = "0";
+    tensionAudio.pause();
+    stampedeAudio.currentTime = 0;
+    stampedeAudio.play();
+
+    userQuote.innerText = "COMMUNING WITH THE VOID...";
+    artifact.classList.add('opacity-100', 'pointer-events-auto');
 
     try {
+        // 2. FETCH FROM AI WITH HISTORY
         const response = await fetch('/api/oracle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 prompt: promptText,
-                history: chatHistory // Sending the memory
+                history: chatHistory 
             })
         });
         
         const data = await response.json();
         
-        // SAVE TO MEMORY: Store the exchange for the next turn
-        chatHistory.push({ role: "user", parts: [{ text: promptText }] });
-        chatHistory.push({ role: "model", parts: [{ text: data.reply }] });
+        // 3. SAVE TO MEMORY (Check if data.reply exists)
+        if (data.reply) {
+            chatHistory.push({ role: "user", parts: [{ text: promptText }] });
+            chatHistory.push({ role: "model", parts: [{ text: data.reply }] });
+            
+            setTimeout(() => { 
+                userQuote.innerText = `"${data.reply}"`; 
+            }, 2000);
+        } else {
+            throw new Error("Empty response");
+        }
 
-        setTimeout(() => { userQuote.innerText = `"${data.reply}"`; }, 2000);
     } catch (e) {
+        console.error(e);
         userQuote.innerText = "THE MACHINE REFUSES YOUR OFFERING.";
     }
+}
+
 }
 
 
